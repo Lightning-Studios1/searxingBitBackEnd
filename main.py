@@ -28,13 +28,16 @@ async def search(q: str = Query(...)):
             params={"q": q, "format": "json"}
         )
 
-    # If SearXNG returned HTML or an error page
+    print("STATUS:", r.status_code)
+    print("HEADERS:", r.headers)
+    print("RAW:", r.text[:500])
+
     if "application/json" not in r.headers.get("content-type", ""):
         return {
             "query": q,
             "error": "SearXNG did not return JSON",
             "status_code": r.status_code,
-            "raw": r.text[:500]  # show first 500 chars for debugging
+            "raw": r.text[:500]
         }
 
     data = r.json()
