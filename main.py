@@ -32,12 +32,18 @@ async def search(q: str = Query(...)):
         except httpx.RequestError as e:
             return {"error": f"Request failed: {e}"}
 
-    # Log response details for debugging
     print("STATUS:", r.status_code)
     print("HEADERS:", r.headers)
     print("RAW:", r.text[:500])
 
-    # Handle non‑JSON responses gracefully
+    # Handle empty or non‑JSON responses
+    if not r.text.strip():
+        return {
+            "query": q,
+            "error": "SearXNG returned an empty response",
+            "status_code": r.status_code
+        }
+
     if "application/json" not in r.headers.get("content-type", ""):
         return {
             "query": q,
