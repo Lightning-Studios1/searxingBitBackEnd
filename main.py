@@ -16,12 +16,10 @@ async def search(q: str = Query(...)):
             headers={
                 "User-Agent": "Mozilla/5.0 (compatible; SearxingBackend/1.0)",
                 "Accept": "application/json",
-                "Authorization": SEARXNG_SECRET  # REQUIRED
-            },
-            timeout=15.0
+                "Authorization": SEARXNG_SECRET
+            }
         )
 
-    # Handle non‑JSON or forbidden responses
     if "application/json" not in r.headers.get("content-type", ""):
         return {
             "query": q,
