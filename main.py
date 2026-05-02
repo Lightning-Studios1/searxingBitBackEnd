@@ -5,21 +5,21 @@ import os
 app = FastAPI()
 
 SEARXNG_URL = os.getenv("SEARXNG_URL")
+SEARXNG_SECRET = os.getenv("SEARXNG_SECRET_KEY")
 
 @app.get("/search")
 async def search(q: str = Query(...)):
     async with httpx.AsyncClient() as client:
-    r = await client.get(
-        f"{SEARXNG_URL}/search",
-        params={"q": q, "format": "json"},
-        headers={
-            "User-Agent": "Mozilla/5.0 (compatible; SearxingBackend/1.0)",
-            "Accept": "application/json",
-            "Authorization": os.getenv("SEARXNG_SECRET_KEY")
-        },
-        timeout=15.0
-    )
-
+        r = await client.get(
+            f"{SEARXNG_URL}/search",
+            params={"q": q, "format": "json"},
+            headers={
+                "User-Agent": "Mozilla/5.0 (compatible; SearxingBackend/1.0)",
+                "Accept": "application/json",
+                "Authorization": SEARXNG_SECRET  # REQUIRED
+            },
+            timeout=15.0
+        )
 
     # Handle non‑JSON or forbidden responses
     if "application/json" not in r.headers.get("content-type", ""):
