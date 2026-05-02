@@ -9,20 +9,6 @@ SEARXNG_URL = os.getenv("SEARXNG_URL")
 @app.get("/search")
 async def search(q: str = Query(...)):
     async with httpx.AsyncClient() as client:
-        r = await client.get(
-            f"{SEARXNG_URL}/search",
-            params={"q": q, "format": "json"}
-        )
-        data = r.json()
-
-    return {
-        "query": q,
-        "results": data.get("results", [])
-    }
-
-@app.get("/search")
-async def search(q: str = Query(...)):
-    async with httpx.AsyncClient() as client:
         try:
             r = await client.get(
                 f"{SEARXNG_URL}/search",
@@ -36,7 +22,7 @@ async def search(q: str = Query(...)):
     print("HEADERS:", r.headers)
     print("RAW:", r.text[:500])
 
-    # Handle empty or non‑JSON responses
+    # Handle empty responses
     if not r.text.strip():
         return {
             "query": q,
@@ -44,6 +30,7 @@ async def search(q: str = Query(...)):
             "status_code": r.status_code
         }
 
+    # Handle non‑JSON responses
     if "application/json" not in r.headers.get("content-type", ""):
         return {
             "query": q,
@@ -52,6 +39,7 @@ async def search(q: str = Query(...)):
             "raw": r.text[:500]
         }
 
+    # Safe JSON parsing
     try:
         data = r.json()
     except ValueError:
